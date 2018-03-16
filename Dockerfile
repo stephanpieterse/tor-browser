@@ -1,8 +1,8 @@
-FROM debian
+FROM debian:stretch
 
-ENV TOR_VERSION=7.5a10
+ENV TOR_VERSION=7.5.1
 # Via https://dist.torproject.org/torbrowser/$TOR_VERSION/sha256sums-signed-build.txt
-ENV SHA256_CHECKSUM=f4b5043a1c681af6824436371c4e808a3d509bacd3b3c9616f4bcebd1554dbf2
+ENV SHA256_CHECKSUM=4087c5e18f6290296d7f343d5286193be496e979d4f19f239db6d40702cbb5b0
 ENV LANG=C.UTF-8
 ENV RELEASE_FILE=tor-browser-linux64-${TOR_VERSION}_en-US.tar.xz
 ENV RELEASE_KEY=0x4E2C6E8793298290
@@ -27,12 +27,8 @@ RUN apt-get update && \
     chown -R user:user /home/user
 
 WORKDIR /usr/local/bin
-# TODO(hkjn): Stop having gpg import key command separate layer, if we
-# can figure out why it's flaky and commonly gives "keys: key
-# 4E2C6E8793298290 can't be retrieved, gpg: no valid OpenPGP data
-# found."
-RUN gpg --keyserver pgp.mit.edu --recv-keys $RELEASE_KEY
-RUN curl --fail -O -sSL ${RELEASE_URL} && \
+RUN gpg --keyserver https://pgp.mit.edu --recv-keys $RELEASE_KEY && \
+    curl --fail -O -sSL ${RELEASE_URL} && \
     curl --fail -O -sSL ${RELEASE_URL}.asc && \
     gpg --verify ${RELEASE_FILE}.asc && \
     echo "$SHA256_CHECKSUM $RELEASE_FILE" > sha256sums.txt && \

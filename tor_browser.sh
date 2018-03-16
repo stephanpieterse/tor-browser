@@ -1,4 +1,3 @@
-
 #!/bin/bash
 #
 # Runs Tor browser in a Docker container.
